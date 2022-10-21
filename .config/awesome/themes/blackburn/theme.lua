@@ -23,9 +23,9 @@ theme.font      = "sans 10"
 theme.fg_normal  = "#d3cfca"
 theme.fg_focus   = "#ffffff"
 theme.fg_urgent  = "#deb26c"
-theme.bg_normal  = "#070d14"
-theme.bg_focus   = "#42414d"
-theme.bg_urgent  = "#070d14"
+theme.bg_normal  = "#070d1477"
+theme.bg_focus   = "#2c2c87cc"
+theme.bg_urgent  = "#070d14dd"
 theme.bg_systray = theme.bg_normal
 -- }}}
 
@@ -50,6 +50,9 @@ theme.titlebar_bg_normal = "#070d14"
 -- tooltip_[font|opacity|fg_color|bg_color|border_width|border_color]
 -- Example:
 --theme.taglist_bg_focus = "#deb26c"
+--theme.taglist_bg_focus = '#0081c2'
+--theme.tasklist_bg_focus = theme.taglist_bg_focus
+--theme.tasklist_fg_focus = theme.fg_focus
 -- }}}
 
 -- {{{ Widgets
@@ -72,8 +75,8 @@ theme.mouse_finder_color = "#deb26c"
 -- Variables set for theming the menu:
 -- menu_[bg|fg]_[normal|focus]
 -- menu_[border_color|border_width]
-theme.menu_height = dpi(15)
-theme.menu_width  = dpi(100)
+theme.menu_height = dpi(20)
+theme.menu_width  = dpi(150)
 -- }}}
 
 -- {{{ Icons
@@ -85,7 +88,7 @@ theme.taglist_squares_unsel = themes_path .. "blackburn/taglist/squarez.png"
 
 -- {{{ Misc
 theme.awesome_icon           = themes_path .. "blackburn/awesome-icon.png"
-theme.menu_submenu_icon      = themes_path .. "default/submenu.png"
+theme.menu_submenu_icon      = themes_path .. "blackburn/submenu.png"
 -- }}}
 
 -- {{{ Layout

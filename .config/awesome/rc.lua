@@ -31,8 +31,12 @@ local logout_popup = require("awesome-wm-widgets.logout-popup-widget.logout-popu
 local brightness_widget = require("awesome-wm-widgets.brightness-widget.brightness")
 -- volume controls
 local volume_widget = require('awesome-wm-widgets.volume-widget.volume')
+-- calendar
+local calendar_widget = require("awesome-wm-widgets.calendar-widget.calendar")
 -- XDG menu
-xdg_menu = require("archmenu")
+local xdg_menu = require("archmenu")
+-- weather widget
+local weather_widget = require("awesome-wm-widgets.weather-widget.weather")
 
 -- Enable hotkeys help widget for VIM and other apps
 -- when client with a matching name is opened:
@@ -83,18 +87,21 @@ function awful.menu.new(...)
 end
 -- This is used later as the default terminal and editor to run.
 --terminal = "alacritty -o font.size=8"
-terminal = "alacritty"
-editor = os.getenv("EDITOR") or "nano"
-editor_cmd = terminal .. " -e " .. editor
-spotify = "ncspot"
-spotify_cmd = terminal .. " -e " .. spotify
+local terminal = "alacritty"
+local editor = os.getenv("EDITOR") or "nano"
+local editor_cmd = terminal .. " -e " .. editor
+local guieditor = "code-oss --unity-launch"
+local guifileexplorer = "nemo"
+local musicplayer = "spotify-launcher"
+--spotify = "ncspot"
+--spotify_cmd = terminal .. " -e " .. spotify
 
 -- Default modkey.
 -- Usually, Mod4 is the key with a logo between Control and Alt.
 -- If you do not like this or do not have such a key,
 -- I suggest you to remap Mod4 to another key using xmodmap or other tools.
 -- However, you can use another modifier like Mod1, but it may interact with others.
-modkey = "Mod4"
+local modkey = "Mod4"
 
 -- Table of layouts to cover with awful.layout.inc, order matters.
 awful.layout.layouts = {
@@ -119,7 +126,7 @@ awful.layout.layouts = {
 
 -- {{{ Menu
 -- Create a launcher widget and a main menu
-myawesomemenu = {
+local myawesomemenu = {
    { "hotkeys", function() hotkeys_popup.show_help(nil, awful.screen.focused()) end },
    { "manual", terminal .. " -e man awesome" },
    { "editar config", editor_cmd .. " " .. awesome.conffile },
@@ -127,14 +134,14 @@ myawesomemenu = {
    { "salir", function() awesome.quit() end },
 }
 
-mymainmenu = awful.menu({ items = { { "awesome", myawesomemenu, beautiful.awesome_icon },
+local mymainmenu = awful.menu({ items = { { "awesome", myawesomemenu, beautiful.awesome_icon },
                                     { "aplicaciones", xdgmenu },
                                     { "abrir terminal", terminal },
                                     { "cambiar wallpaper", "nitrogen" }
                                   }
                         })
 
-mylauncher = awful.widget.launcher({ image = beautiful.awesome_icon,
+local mylauncher = awful.widget.launcher({ image = beautiful.awesome_icon,
                                      menu = mymainmenu })
 
 -- Menubar configuration
@@ -142,22 +149,33 @@ menubar.utils.terminal = terminal -- Set the terminal for applications that requ
 -- }}}
 
 -- Keyboard map indicator and switcher
-mykeyboardlayout = awful.widget.keyboardlayout()
+local mykeyboardlayout = awful.widget.keyboardlayout()
 
 -- {{{ Wibar
 -- Create a textclock widget
-mytextclock = wibox.widget.textclock()
+local mytextclock = wibox.widget.textclock()
 -- A container for the clock
-myclockbar = wibox.container.place(
+local myclockbar = wibox.container.place(
     mytextclock,
     'center',
     'center'
 )
+-- Calendar attached to clock
+local cw = calendar_widget({
+    theme = 'nord',
+    placement = 'top_center',
+    start_sunday = true,
+    radius = 8,
+})
+mytextclock:connect_signal("button::press",
+    function(_, _, _, button)
+        if button == 1 then cw.toggle() end
+    end)
 -- Battery widget
 local battery_widget = require("awesome-wm-widgets.battery-widget.battery")
 
 -- Spotify widget
---local spotify_widget = require("awesome-wm-widgets.spotify-widget.spotify")
+local spotify_widget = require("awesome-wm-widgets.spotify-widget.spotify")
 
 -- Create a wibox for each screen and add it
 local taglist_buttons = gears.table.join(
@@ -221,26 +239,26 @@ awful.screen.connect_for_each_screen(function(s)
 
     -- Each screen has its own tag table.
     --awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, s, awful.layout.layouts[1])
-    local names = { "main", "www", "music", "chat", "game", "dev", "office", "video", "misc" }
+    local names = { "main", "www", "dev", "office", "chat", "music", "game", "video", "misc" }
     local l = awful.layout.suit
-    local layouts = { l.fair, l.tile, l.fair, l.tile, l.floating, l.tile, l.tile, l.floating, l.floating }
+    local layouts = { l.fair, l.tile, l.tile, l.tile, l.tile, l.fair, l.floating, l.floating, l.floating }
     local icons_path = "/usr/share/icons/Arc/"
     local icons = {
         icons_path .. "actions/24/go-home.png",
         icons_path .. "categories/24/applications-internet.png",
-        icons_path .. "actions/24/music-library.png",
-        icons_path .. "panel/22/user-available.svg",
-        icons_path .. "devices/24/input-gaming.png",
         icons_path .. "actions/24/system-run.png",
         icons_path .. "actions/24/mail-attachment.png",
+        icons_path .. "panel/22/user-available.svg",
+        icons_path .. "actions/24/music-library.png",
+        icons_path .. "devices/24/input-gaming.png",
         icons_path .. "places/24/folder-videos.png",
         icons_path .. "actions/24/mail-mark-junk.png"
     }
     awful.tag.add(names[1], {
         icon               = icons[1],
         layout             = layouts[1],
-        master_fill_policy = "master_width_factor",
-        gap_single_client  = true,
+        -- master_fill_policy = "master_width_factor",
+        -- gap_single_client  = true,
         --gap                = 15,
         screen             = s,
         selected           = true,
@@ -295,14 +313,15 @@ awful.screen.connect_for_each_screen(function(s)
                            awful.button({ }, 3, function () awful.layout.inc(-1) end),
                            awful.button({ }, 4, function () awful.layout.inc( 1) end),
                            awful.button({ }, 5, function () awful.layout.inc(-1) end)))
+   
     -- Create a taglist widget
     s.mytaglist = awful.widget.taglist {
         screen  = s,
         filter  = awful.widget.taglist.filter.all,
         buttons = taglist_buttons,
         style   = {
-            --shape_border_width = dpi(1),
-            --shape_border_color = beautiful.border_color,
+            shape_border_width = dpi(1),
+            shape_border_color = '#00000000',
             shape  = gears.shape.rounded_rect,
         },
         layout   = {
@@ -318,7 +337,7 @@ awful.screen.connect_for_each_screen(function(s)
                 halign = 'center',
                 widget = wibox.container.place,
             },
-            spacing = 1,
+            spacing = 3,
             layout  = wibox.layout.fixed.horizontal
         },
         widget_template = {
@@ -340,24 +359,117 @@ awful.screen.connect_for_each_screen(function(s)
             },
             id     = 'background_role',
             widget = wibox.container.background,
+            -- Add support for hover colors and an index label
+--            create_callback = function(self, c3, index, objects) --luacheck: no unused args
+--                self:get_children_by_id('icon_role')[1].tag = t
+--                self:connect_signal('mouse::enter', function()
+--                    if self.bg ~= beautiful.border_focus then
+--                        self.backup     = self.bg
+--                        self.has_backup = true
+--                    end
+--                    self.bg = beautiful.border_focus
+--                end)
+--                self:connect_signal('mouse::leave', function()
+--                    if self.has_backup then self.bg = self.backup end
+--                end)
+--            end,
+--            update_callback = function(self, c3, index, objects) --luacheck: no unused args
+--                self:get_children_by_id('icon_role')[1].tag = t
+--            end,
         },
     }
 
     -- Create a tasklist widget
     s.mytasklist = awful.widget.tasklist {
-        screen  = s,
-        filter  = awful.widget.tasklist.filter.currenttags,
-        buttons = tasklist_buttons,
-        style   = {
-            shape = gears.shape.rounded_rect,
+        screen   = s,
+        filter   = awful.widget.tasklist.filter.currenttags,
+        buttons  = tasklist_buttons,
+        style    = {
+            shape_border_width = 1,
+            shape_border_color = '#777777',
+            shape  = gears.shape.rounded_rect,
         },
-        --layout  = {
-        --    spacing = 5,
-        --}
+        layout   = {
+            spacing = 5,
+            layout  = wibox.layout.flex.horizontal,
+        },
+
+        widget_template = {
+            {
+                {
+                    {
+                        {
+                            id     = 'icon_role',
+                            widget = wibox.widget.imagebox,
+                        },
+                        top = 2,
+                        bottom = 2,
+                        left = 2,
+                        right = 10,
+                        widget  = wibox.container.margin,
+                    },
+                    {
+                        id     = 'text_role',
+                        widget = wibox.widget.textbox,
+                        align = 'left',
+                        forced_width = 260
+                    },
+                    layout = wibox.layout.align.horizontal,
+                    -- max_widget_size = 160
+                },
+                left  = 10,
+                right = 10,
+                widget = wibox.container.margin
+            },
+            id     = 'background_role',
+            widget = wibox.container.background,
+        },
+    }
+
+    local mytaskbar = wibox.container.place(
+        s.mytasklist,
+        'center',
+        'center'
+    )
+
+    -- System Tray with background
+    local systray = wibox.widget.systray()
+
+    local systray_container = {
+        systray,
+        left = dpi(5),
+        right = dpi(5),
+        top = dpi(1),
+        bottom = dpi(1),
+        --bg = beautiful.bg_systray,
+        widget = wibox.container.margin
+    }
+
+    local mysystray = wibox.widget {
+        {
+            systray_container,
+            top = dpi(1),
+            bottom = dpi(1),
+            left = dpi(3),
+            right = dpi(3),
+            layout = wibox.container.margin
+        },
+        bg = beautiful.bg_systray,
+        shape = gears.shape.rounded_rect,
+        widget = wibox.container.background
     }
 
     -- Create the wibox
-    s.mywibox = awful.wibar({ position = "top", screen = s })
+    s.mywibox = awful.wibar({ 
+        position = "top", 
+        bg = beautiful.bg_normal, 
+        screen = s 
+    })
+    s.bottomwibox = awful.wibar({ 
+        position = "bottom", 
+        bg = beautiful.bg_normal, 
+        screen = s 
+    })
 
     -- Add widgets to the wibox
     s.mywibox:setup {
@@ -367,21 +479,34 @@ awful.screen.connect_for_each_screen(function(s)
             mylauncher,
             s.mytaglist,
             s.mypromptbox,
-	        s.mytasklist,
+	        -- s.mytasklist,
         },
         myclockbar, -- Middle widget
         { -- Right widgets
             layout = wibox.layout.fixed.horizontal,
-            mykeyboardlayout,
-            wibox.widget.systray(),
-            --wibox.widget.separator{
-            --    orientation = vertical,
-            --    forced_width  = 5,
-            --    forced_height = 24,
-            --    thickness     = 5,
-            --    visible = true,
-            --    opacity = 0,
-            --},
+            spotify_widget({
+                play_icon = '/usr/share/icons/Papirus-Light/24x24/categories/spotify.svg',
+                pause_icon = '/usr/share/icons/Papirus-Dark/24x24/panel/spotify-indicator.svg',
+                dim_when_paused = true,
+                dim_opacity = 0.5,
+            }),
+            wibox.widget.separator{
+                orientation = vertical,
+                forced_width  = 5,
+                forced_height = 24,
+                thickness     = 5,
+                visible = true,
+                opacity = 0,
+            },
+            mysystray,
+            wibox.widget.separator{
+                orientation = vertical,
+                forced_width  = 5,
+                forced_height = 24,
+                thickness     = 5,
+                visible = true,
+                opacity = 0,
+            },
             volume_widget{
 			    widget_type = 'arc',
 			    mixer_cmd = 'pavucontrol',
@@ -401,8 +526,42 @@ awful.screen.connect_for_each_screen(function(s)
                 percentage = true,
             },
 	        battery_widget(),
-            s.mylayoutbox,
+            wibox.widget.separator{
+                orientation = vertical,
+                forced_width  = 5,
+                forced_height = 24,
+                thickness     = 5,
+                visible = true,
+                opacity = 0,
+            },
         },
+    }
+
+    s.bottomwibox:setup {
+        layout = wibox.layout.align.horizontal,
+        {
+            layout = wibox.layout.fixed.horizontal,
+            weather_widget({
+                api_key='3cfb956e0bee5d2fc7a4dcdcdb5396ba',
+                coordinates = {-26.8584, -65.1652},
+                show_hourly_forecast = true,
+                show_daily_forecast = true
+            }),
+        },
+        mytaskbar,
+        {
+            layout = wibox.layout.fixed.horizontal,
+            mykeyboardlayout,
+            wibox.widget.separator{
+                orientation = vertical,
+                forced_width  = 5,
+                forced_height = 24,
+                thickness     = 5,
+                visible = true,
+                opacity = 0,
+            },
+            s.mylayoutbox
+        }
     }
 end)
 -- }}}
@@ -419,19 +578,32 @@ root.buttons(gears.table.join(
 globalkeys = gears.table.join(
     -- My keys
     -- screen brightness
-    awful.key({ }, "XF86MonBrightnessUp", function () brightness_widget:inc() end),
-    awful.key({ }, "XF86MonBrightnessDown", function () brightness_widget:dec() end),
+    awful.key({ }, "XF86MonBrightnessUp", function () 
+        brightness_widget:inc() 
+    end),
+    awful.key({ }, "XF86MonBrightnessDown", function () 
+        brightness_widget:dec() 
+    end),
     -- volume controls
-    awful.key({ }, "XF86AudioRaiseVolume", function() volume_widget:inc(5) end),
-    awful.key({ }, "XF86AudioLowerVolume", function() volume_widget:dec(5) end),
-    awful.key({ }, "XF86AudioMute", function() volume_widget:toggle() end),
+    awful.key({ }, "XF86AudioRaiseVolume", function() 
+        volume_widget:inc(5) 
+    end),
+    awful.key({ }, "XF86AudioLowerVolume", function() 
+        volume_widget:dec(5) 
+    end),
+    awful.key({ }, "XF86AudioMute", function() 
+        volume_widget:toggle() 
+    end),
    -- Media Keys
     awful.key({ }, "XF86AudioPlay", function()
-       awful.util.spawn("playerctl play-pause", false) end),
+       awful.util.spawn("playerctl play-pause", false) 
+    end),
     awful.key({ }, "XF86AudioNext", function()
-       awful.util.spawn("playerctl next", false) end),
+       awful.util.spawn("playerctl next", false) 
+    end),
     awful.key({ }, "XF86AudioPrev", function()
-       awful.util.spawn("playerctl previous", false) end),
+       awful.util.spawn("playerctl previous", false) 
+    end),
     -- logoff menu
      awful.key({ modkey }, "Delete", function() logout_popup.launch{
             onlock = function() awful.spawn.with_shell('i3lock-fancy') end,
@@ -446,22 +618,31 @@ globalkeys = gears.table.join(
         awful.key({ modkey, "Shift" }, "Print", nil, function()
         awful.spawn.with_shell("scrnshtzone")
     end),
-    -- Firefox
+    -- File Browser
+    awful.key({ modkey },            "z",     function () awful.util.spawn(guifileexplorer) end,
+              {description = "Files", group = "Apps"}),
+    -- Browser
     awful.key({ modkey },            "b",     function () awful.util.spawn("firefox") end,
               {description = "Firefox", group = "Apps"}),
-    -- Spotify
-    awful.key({ modkey },            "e",     function () awful.spawn(spotify_cmd) end,
-              {description = "Spotify (ncspot)", group = "Apps"}),
-
+    awful.key({ modkey, "Shift" },   "b",     function () awful.util.spawn("firefox -P work") end,
+              {description = "Firefox", group = "Apps"}),
+    -- Music
+    awful.key({ modkey },            "e",     function () awful.spawn(musicplayer) end,
+              {description = "Spotify", group = "Apps"}),
+    -- GUI Editor
+    awful.key({ modkey },            "v",     function () awful.spawn(guieditor) end,
+              {description = "Visual Studio Code", group = "Apps"}),
+    -- Show help
     awful.key({ modkey,           }, "s",      hotkeys_popup.show_help,
               {description="show help", group="awesome"}),
+    -- Tag Actions
     awful.key({ modkey,           }, "Left",   awful.tag.viewprev,
               {description = "view previous", group = "tag"}),
     awful.key({ modkey,           }, "Right",  awful.tag.viewnext,
               {description = "view next", group = "tag"}),
     awful.key({ modkey,           }, "Escape", awful.tag.history.restore,
               {description = "go back", group = "tag"}),
-
+    -- Client actions
     awful.key({ modkey,           }, "j",
         function ()
             awful.client.focus.byidx( 1)
@@ -517,9 +698,9 @@ globalkeys = gears.table.join(
               {description = "increase the number of columns", group = "layout"}),
     awful.key({ modkey, "Control" }, "l",     function () awful.tag.incncol(-1, nil, true)    end,
               {description = "decrease the number of columns", group = "layout"}),
-    awful.key({ modkey,           }, "space", function () awful.layout.inc( 1)                end,
+    awful.key({ modkey,           }, "y", function () awful.layout.inc( 1)                end,
               {description = "select next", group = "layout"}),
-    awful.key({ modkey, "Shift"   }, "space", function () awful.layout.inc(-1)                end,
+    awful.key({ modkey, "Shift"   }, "y", function () awful.layout.inc(-1)                end,
               {description = "select previous", group = "layout"}),
 
     awful.key({ modkey, "Control" }, "n",
@@ -699,7 +880,7 @@ awful.rules.rules = {
           "Wpa_gui",
           "veromix",
           "xtightvncviewer",
-	  "pavucontrol",
+	        "pavucontrol",
           "Pavucontrol",
           "nitrogen",
           "Nitrogen",
@@ -714,6 +895,7 @@ awful.rules.rules = {
           "AlarmWindow",  -- Thunderbird's calendar.
           "ConfigManager",  -- Thunderbird's about:config.
           "pop-up",       -- e.g. Google Chrome's (detached) Developer Tools.
+          "toolbox",     -- Firefox Developer Tools.
         }
       }, properties = { floating = true }},
 
@@ -731,11 +913,11 @@ awful.rules.rules = {
 -- {{{ Signals
 -- Signal function to execute when a new client appears.
 client.connect_signal("manage", function (c)
--- shape of the client window
+    -- shape of the client window
     c.shape = gears.shape.rounded_rect
     -- Set the windows at the slave,
     -- i.e. put it at the end of others instead of setting it master.
-    -- if not awesome.startup then awful.client.setslave(c) end
+    if not awesome.startup then awful.client.setslave(c) end
 
     if awesome.startup
       and not c.size_hints.user_position
@@ -795,27 +977,22 @@ client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_n
 -- }}}
 
 -- {{{ Autostart at launch
--- XDG autostart especification
-awful.spawn.with_shell(
-       'if (xrdb -query | grep -q "^awesome\\.started:\\s*true$"); then exit; fi;' ..
-       'xrdb -merge <<< "awesome.started:true";' ..
-       -- list each of your autostart commands, followed by ; inside single quotes, followed by ..
-       'dex --environment Awesome --autostart --search-paths "$XDG_CONFIG_DIRS/autostart:$XDG_CONFIG_HOME/autostart"' -- https://github.com/jceb/dex
-       )
+-- autostart script
+awful.spawn.with_shell("~/.config/awesome/autorun.sh")
 
 --awful.spawn.with_shell("killall udiskie")
 -- touchpad
---awful.spawn.with_shell('~/.local/bin/tpcfg')
+awful.spawn.with_shell('~/.local/bin/tpcfg')
 -- brillo de la pantalla
 awful.spawn.with_shell("light -S 35")
 -- compositor
 awful.spawn.with_shell("picom --experimental-backends")
 -- wifi
-awful.spawn.with_shell("nm-applet")
+--awful.spawn.with_shell("nm-applet")
 -- pendrives
 --awful.spawn.with_shell("udiskie -t")
 -- polkit agent
-awful.spawn.with_shell("/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &")
+--awful.spawn.with_shell("/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &")
 -- actualizar menu
 awful.spawn.with_shell("xdg_menu --format awesome --root-menu /etc/xdg/menus/arch-applications.menu | sed 's/xterm/alacritty/g' >~/.config/awesome/archmenu.lua")
 -- }}}
