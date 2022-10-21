@@ -6,16 +6,22 @@ This config relies on stuff you must install, or it will be broken.
 
 https://github.com/streetturtle/awesome-wm-widgets
 
-you need to clone this repo in your awesome directory since im using some of them
+## Awesome buttons
+
+https://github.com/streetturtle/awesome-buttons
+
+you need to clone these in your .config/awesome directory since im using them
 
 ## Instal some necessary programs
 
 - alacritty
+- archlinux-xdg-menu
 - nvim
 - scrot
 - picom
 - polkit-gnome
 - light
+- udiskie
 
 ## Make archmenu
 
