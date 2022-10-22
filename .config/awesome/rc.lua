@@ -542,8 +542,8 @@ awful.screen.connect_for_each_screen(function(s)
         {
             layout = wibox.layout.fixed.horizontal,
             weather_widget({
-                api_key='3cfb956e0bee5d2fc7a4dcdcdb5396ba',
-                coordinates = {-26.8584, -65.1652},
+                api_key='getyourownkey',
+                coordinates = {000000, 000000},
                 show_hourly_forecast = true,
                 show_daily_forecast = true
             }),
