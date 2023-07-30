@@ -1,0 +1,5 @@
+#!/bin/sh
+[[ -f ~/.bashrc ]] && . ~/.bashrc
+export TERMINAL="alacritty"
+export EDITOR="nvim"
+[[ -f ~/.config/mysecrets.zsh ]] && . ~/.config/mysecrets.zsh

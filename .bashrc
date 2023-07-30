@@ -13,18 +13,14 @@ export TERMCMD="alacritty"
 export EDITOR="nvim"
 export VISUAL="nvim"
 export SUDO_EDITOR="nvim"
-alias ls='ls --color=auto'
+#alias ls='ls --color=auto'
+alias ls='exa --icons --group-directories-first'
 alias xterm='alacritty'
 export WINIT_X11_SCALE_FACTOR=1.0
-#alias alacritty='WINIT_X11_SCALE_FACTOR=1.0 alacritty'
-#PS1='[\u@\h \W]\$ '
-PS1='\[\e[1;97m\e[7m\][\d \t]\[\e[1;33m\][\u]\[\e[1;32m\]@\[\e[1;34m\][\h]\[\e[27m\]\n[\W] \[\e[1;32m\]\$\[\e[0m\] '
-
+PS1='\[\e[1m\][\[\e[92m\]\d \[\e[39m\]- \[\e[93m\]\t\[\e[39m\]][\[\e[91m\]\u\[\e[39m\]@\[\e[94m\]\h\[\e[39m\]][\[\e[96m\]\w\[\e[39m\]]\n\[\e[92m\]\$ \[\e[0m\]'
 if ! pgrep -u "$USER" ssh-agent > /dev/null; then
     ssh-agent -t 1h > "$XDG_RUNTIME_DIR/ssh-agent.env"
 fi
 if [[ ! "$SSH_AUTH_SOCK" ]]; then
     source "$XDG_RUNTIME_DIR/ssh-agent.env" >/dev/null
 fi
-
-neofetch

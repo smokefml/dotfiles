@@ -80,9 +80,21 @@ theme.menu_width  = dpi(150)
 -- }}}
 
 -- {{{ Icons
+theme.icon_theme = "/usr/share/icons/Arc/"
 -- {{{ Taglist
 theme.taglist_squares_sel   = themes_path .. "blackburn/taglist/squarefz.png"
 theme.taglist_squares_unsel = themes_path .. "blackburn/taglist/squarez.png"
+
+theme.icon_home_tag = theme.icon_theme .. "actions/24/go-home.png"
+theme.icon_www_tag = theme.icon_theme .. "categories/24/applications-internet.png"
+theme.icon_dev_tag = theme.icon_theme .. "actions/24/system-run.png"
+theme.icon_office_tag = theme.icon_theme .. "actions/24/mail-attachment.png"
+theme.icon_chat_tag = theme.icon_theme .. "panel/22/user-available.svg"
+theme.icon_music_tag = theme.icon_theme .. "actions/24/music-library.png"
+theme.icon_game_tag = theme.icon_theme .. "devices/24/input-gaming.png"
+theme.icon_video_tag = theme.icon_theme .. "places/24/folder-videos.png"
+theme.icon_misc_tag = theme.icon_theme .. "actions/24/mail-mark-junk.png"
+
 --theme.taglist_squares_resize = "false"
 -- }}}
 

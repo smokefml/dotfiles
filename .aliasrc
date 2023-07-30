@@ -1,0 +1,9 @@
+alias mydesk="startx ~/.config/X11/xinitrc"
+#alias ls='ls --color=auto'
+alias ls='exa --icons --group-directories-first'
+alias diff='diff --color=auto'
+alias grep='grep --color=auto'
+alias ip='ip -color=auto'
+alias xterm='alacritty'
+alias vim='nvim'
+alias yarn='yarn --emoji=true'
